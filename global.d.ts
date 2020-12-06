@@ -6,6 +6,9 @@ import type { Character as CharType } from './src/service/character.service'
 declare global {
     type AppNavigationParamSpecs = {
         characters: undefined;
+        characterDetail: {
+            character: Character
+        }
     }
 
     interface AppScreenProps<S extends keyof AppNavigationParamSpecs> {

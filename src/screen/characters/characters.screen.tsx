@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { List, Spinner, Text } from "@ui-kitten/components";
 
 import ScreenScaffold from "../../component/ScreenScaffold";
 import { Actions, CharacterMetaState } from "../../store/character.store";
 import CharacterCard from "./CharacterCard";
-import { ListRenderItemInfo } from "react-native";
+import { ListRenderItemInfo, View, VirtualizedList } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 
 interface CharacterScreenNavProp extends AppScreenProps<"characters"> {}
 
@@ -30,12 +31,22 @@ const CharactersScreen: React.FC<CharacterScreenNavProp> = (props) => {
     }
   };
 
+  const onSelectChar = (character: Character) => () => {
+    props.navigation.navigate("characterDetail", { character });
+  };
+
   const renderFooter = () => {
-    return metadata.loading ? (
-      <Spinner size="small" />
-    ) : metadata.pageCount === nextPage ? (
-      <Text appearance='hint'>It looks like you've reached the final of the list</Text>
-    ) : null;
+    return (
+      <View key="footer__" style={{ alignContent: 'center', padding: 8, justifyContent: 'center', width: '100%', flex: 1 }}>
+        {metadata.loading ? (
+          <Spinner size="large" />
+        ) : metadata.pageCount === nextPage ? (
+          <Text appearance="hint">
+            It looks like you've reached the final of the list
+          </Text>
+        ) : null}
+      </View>
+    );
   };
 
   return (
@@ -45,10 +56,16 @@ const CharactersScreen: React.FC<CharacterScreenNavProp> = (props) => {
         data={characters}
         keyExtractor={(item) => item.id}
         renderItem={(info: ListRenderItemInfo<Character>) => {
-          return <CharacterCard key={info.item.id} character={info.item} />;
+          return (
+            <CharacterCard
+              onPress={onSelectChar(info.item)}
+              key={`${info.item.id}_${info.index}`}
+              character={info.item}
+            />
+          );
         }}
         onEndReached={loadMoreContent}
-        onEndReachedThreshold={0.2}
+        onEndReachedThreshold={0.1}
         ListFooterComponent={renderFooter}
       />
     </ScreenScaffold>
